@@ -1,11 +1,3 @@
-/*
-Name: Abhinav Jayakumar
-filename: list.js
-Course: INFT 2202
-Date: 2025-01-10
-Description: This is the code for the validations and save the details.
-*/
-
 // tell us what page we're on
 console.log('we are on the add page');
 
@@ -57,65 +49,21 @@ async function submitAnimalForm ( event ) {
 }
 
 // validate the animal form
-function validateAnimalForm(form) {
-    console.log('validating');
+function validateAnimalForm ( form ) {
+    console.log('validating')
     let valid = true;
-
-    // Validate the "name" field
-    const name = form.name.value.trim();
-    const eleNameError = form.name.nextElementSibling;
-    if (name === "") {
+    // test that name is valid
+    const name = form.name.value;
+    const eleNameError = form.name.nextElementSibling
+    if (name == "") {
         eleNameError.classList.remove('d-none');
         eleNameError.textContent = "You must name this animal!";
         valid = false;
     } else {
         eleNameError.classList.add('d-none');
     }
+    // add validation for the remaining fields. 
 
-    // Validate the "breed" field
-    const breed = form.breed.value.trim();
-    const eleBreedError = form.breed.nextElementSibling;
-    if (breed === "") {
-        eleBreedError.classList.remove('d-none');
-        eleBreedError.textContent = "You must specify the breed!";
-        valid = false;
-    } else {
-        eleBreedError.classList.add('d-none');
-    }
-
-    // Validate the "legs" field
-    const legs = form.legs.value.trim();
-    const eleLegsError = form.legs.nextElementSibling;
-    if (legs === "" || isNaN(legs) || Number(legs) < 0) {
-        eleLegsError.classList.remove('d-none');
-        eleLegsError.textContent = "Please enter a valid number of legs (0 or more).";
-        valid = false;
-    } else {
-        eleLegsError.classList.add('d-none');
-    }
-
-    // Validate the "eyes" field
-    const eyes = form.eyes.value.trim();
-    const eleEyesError = form.eyes.nextElementSibling;
-    if (eyes === "" || isNaN(eyes) || Number(eyes) < 0) {
-        eleEyesError.classList.remove('d-none');
-        eleEyesError.textContent = "Please enter a valid number of eyes (0 or more).";
-        valid = false;
-    } else {
-        eleEyesError.classList.add('d-none');
-    }
-
-    // Validate the "sound" field
-    const sound = form.sound.value.trim();
-    const eleSoundError = form.sound.nextElementSibling;
-    if (sound === "") {
-        eleSoundError.classList.remove('d-none');
-        eleSoundError.textContent = "Please specify the sound the animal makes.";
-        valid = false;
-    } else {
-        eleSoundError.classList.add('d-none');
-    }
-
-    // Return if the form is valid or not
-    return valid;
+    // return if the form is valid or not
+    return valid
 }
