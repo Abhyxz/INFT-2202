@@ -1,57 +1,77 @@
-// import the movies array from the supplied data file.
-// write the array to the console, so you can see that they are loading properly
-/* call insertMoviesIntoTable, 
-    give it a reference to the table you want to populate,
-    and the list of movies you want to show in the table */
-// show the table
+import { movies } from "../data/movies.js";
 
-// get a list of `pinnedMovies` from local storage
-// log them out so you can see that you have working pins
-// if there are no pinned movies, put a message on the screen that says so
-// but if there are, hide the message
-/* call insertMoviesIntoTable, 
-    give it a reference to the table you want to populate,
-    and the list of movies you want to show in the table */
-// show the table
+console.log("Loaded movies:", movies);
 
+const allMoviesTable = document.querySelector("#all-movies-container table");
+const pinnedMoviesTable = document.querySelector("#pinned-movies-container table");
+const allMoviesAlert = document.querySelector("#all-movies-container .alert");
+const pinnedMoviesAlert = document.querySelector("#pinned-movies-container .alert");
 
-
-/* 
- *  getPinnedMoviesFromStorage
- *  This should take no parameters, and return an array.
- */
 function getPinnedMoviesFromStorage() {
+    return JSON.parse(localStorage.getItem("pinnedMovies")) || [];
 }
 
-/*
- *  insertMoviesIntoTable
- *  This should take two parameters,
- *  - a reference to the table you want to populate
- *  - a list of movies to put in the table
- *  It should return nothing
- */
-function insertMoviesIntoTable(eleTable, movies) 
-{
-    // sort the list of movies by rating, highest to lowest
-    // for each movie
-        // insert a row
-        // insert a cell for each attribute of a movie
-        // the datetime is a "unix timestamp", measured in seconds.  
-        //   javascript dates are measured in milliseconds.
-        //   convert this timestamp to a javascript date and print out the date as a normal string in english
-        // create a new button element
-        // look in local storage to see if this item is already pinned
-        //   if it's already pinned, make it red, otherwise make it blue
-        // set the html so it shows a font-awesome icon
-        //   if it's already pinned, show an x, otherwise show a pencil
-        // add an event listener, when this button is clicked...
-            // if it is, remove it from the list
-            // it it's not, add it to the list 
-            // refresh the page
-        // create another table row and put the button in it
-        // if a movie is rated two or below, make this row red
-        // if this movie is rated higher than two but less than or equal to five, make this row orange
-        // if this movie is rated higher than five but less than or equal to 8, make this row blue
-        // if this movie is rated higher than eight, make this row green
-        // if this movie is a drama, don't add it to the list
+function savePinnedMoviesToStorage(pinnedMovies) {
+    localStorage.setItem("pinnedMovies", JSON.stringify(pinnedMovies));
+}
+
+function insertMoviesIntoTable(eleTable, movies) {
+    movies.sort((a, b) => b.rating - a.rating);
+    
+    const tbody = eleTable.querySelector("tbody");
+    tbody.innerHTML = "";
+    
+    movies.forEach(movie => {
+        if (movie.genre === "Drama") return;
+        
+        const row = tbody.insertRow();
+        row.insertCell(0).textContent = movie.title;
+        row.insertCell(1).textContent = movie.genre;
+        row.insertCell(2).textContent = new Date(movie.release_date * 1000).toLocaleDateString();
+        row.insertCell(3).textContent = movie.director;
+        row.insertCell(4).textContent = movie.rating;
+        
+        const buttonCell = row.insertCell(5);
+        const button = document.createElement("button");
+        button.classList.add("btn");
+        
+        let pinnedMovies = getPinnedMoviesFromStorage();
+        let isPinned = pinnedMovies.some(m => m.title === movie.title);
+        
+        button.classList.add(isPinned ? "btn-danger" : "btn-primary");
+        button.innerHTML = isPinned ? '<i class="fas fa-times"></i>' : '<i class="fas fa-thumbtack"></i>';
+        
+        button.addEventListener("click", () => {
+            let updatedMovies = isPinned 
+                ? pinnedMovies.filter(m => m.title !== movie.title) 
+                : [...pinnedMovies, movie];
+            
+            savePinnedMoviesToStorage(updatedMovies);
+            location.reload();
+        });
+        
+        buttonCell.appendChild(button);
+        
+        if (movie.rating <= 2) row.classList.add("table-danger");
+        else if (movie.rating <= 5) row.classList.add("table-warning");
+        else if (movie.rating <= 8) row.classList.add("table-primary");
+        else row.classList.add("table-success");
+    });
+    
+    eleTable.classList.remove("d-none");
+}
+
+const pinnedMovies = getPinnedMoviesFromStorage();
+console.log("Pinned movies:", pinnedMovies);
+
+if (pinnedMovies.length === 0) pinnedMoviesAlert.classList.remove("d-none");
+else {
+    pinnedMoviesAlert.classList.add("d-none");
+    insertMoviesIntoTable(pinnedMoviesTable, pinnedMovies);
+}
+
+if (movies.length === 0) allMoviesAlert.classList.remove("d-none");
+else {
+    allMoviesAlert.classList.add("d-none");
+    insertMoviesIntoTable(allMoviesTable, movies);
 }
