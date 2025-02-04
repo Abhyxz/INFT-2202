@@ -1,80 +1,75 @@
-
 /*
- *  Service constructor
+ *  Animal Service Constructor
  */
 function AnimalService() {
-    // if there is no entry for animals in local storage
     if (!localStorage.getItem('animals')) {
-        // create a new entry in local storage and put an empty array in it
-        localStorage.setItem('animals', JSON.stringify([]))
+        localStorage.setItem('animals', JSON.stringify([]));
     }
 }
 
-/*
- *
- */
 AnimalService.prototype.getAnimals = function() {
-    // this will always be set, because we did it in the constructor
-    return JSON.parse(localStorage.getItem('animals'));
-}
+    return JSON.parse(localStorage.getItem('animals')) || [];
+};
 
-/*
- *
- */
-AnimalService.prototype.saveAnimal = function(animal) {
-    // get a list of animals
+AnimalService.prototype.getAnimalPage = function({ page = 1, perPage = 5 }) {
     const animals = this.getAnimals();
-    // see if this animal already exists
-    if (animals.find(a => a.name == animal.name)) {
-        // tell the caller we're not going to save this
+    const totalRecords = animals.length;
+    const pages = Math.ceil(totalRecords / perPage);
+    const startIndex = (page - 1) * perPage;
+    const records = animals.slice(startIndex, startIndex + perPage);
+    return { records, pagination: { page, perPage, pages } };
+};
+
+AnimalService.prototype.saveAnimal = function(animal) {
+    if (!animal || !animal.name) {
+        throw new Error('Invalid animal object!');
+    }
+    const animals = this.getAnimals();
+    if (animals.some(a => a.name === animal.name)) {
         throw new Error('An animal with that name already exists!');
     }
-    // if it doesn't, add it to the array
     animals.push(animal);
-    // and save it in storage again
     localStorage.setItem('animals', JSON.stringify(animals));
-    // tell the caller all was well
     return true;
-}
+};
 
-/*
- *
- */
 AnimalService.prototype.findAnimal = function(animalName) {
+    if (!animalName) {
+        throw new Error('Invalid animal name!');
+    }
     const animals = this.getAnimals();
-    const animal = animals.find(a => a.name == animalName);
+    const animal = animals.find(a => a.name === animalName);
     if (!animal) {
         throw new Error('That animal does not exist!');
     }
     return animal;
-}
+};
 
-/*
- *
- */
 AnimalService.prototype.updateAnimal = function(animal) {
+    if (!animal || !animal.name) {
+        throw new Error('Invalid animal object!');
+    }
     const animals = this.getAnimals();
-    const idx = animals.findIndex(a => a.name == animal.name);
+    const idx = animals.findIndex(a => a.name === animal.name);
     if (idx === -1) {
         throw new Error('That animal does not exist!');
     }
     animals[idx] = animal;
     localStorage.setItem('animals', JSON.stringify(animals));
     return true;
-}
+};
 
-/*
- *
- */
-AnimalService.prototype.deleteAnimal = function(animal) {
-    const animals = this.getAnimals();
-    const idx = animals.findIndex(a => a.name == animal.name);
-    if (idx === -1) {
+AnimalService.prototype.deleteAnimal = function(animalName) {
+    if (!animalName) {
+        throw new Error('Invalid animal name!');
+    }
+    let animals = this.getAnimals();
+    const newAnimals = animals.filter(a => a.name !== animalName);
+    if (animals.length === newAnimals.length) {
         throw new Error('That animal does not exist!');
     }
-    animals.splice(idx, 1);
-    localStorage.setItem('animals', JSON.stringify(animals));
+    localStorage.setItem('animals', JSON.stringify(newAnimals));
     return true;
-}
+};
 
 export default new AnimalService();
