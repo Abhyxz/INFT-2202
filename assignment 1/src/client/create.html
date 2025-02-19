@@ -1,52 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Product - Web Shop</title>
+<html lang="en-us">
+  <head>
+    <title>INFT 2202</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-</head>
-<body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container">
-            <a class="navbar-brand" href="index.html">Web Shop</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="list.html">Shop</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="create.html">Add Product</a></li>
-                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
-                    <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script defer src="./app/product.service.mock.js"></script>
+    <script type="module" src="./app/create.js"></script>
 
-    <!-- Create Product Form -->
-    <div class="container mt-4">
-        <h1 class="text-center">Add New Product</h1>
-        <form id="create-product-form" novalidate>
-            <div class="mb-3">
-                <label for="productName" class="form-label">Product Name</label>
-                <input type="text" class="form-control" id="productName" required>
-                <div class="text-danger" id="productNameError"></div>
-            </div>
-            <div class="mb-3">
-                <label for="productDescription" class="form-label">Description</label>
-                <textarea class="form-control" id="productDescription" required></textarea>
-                <div class="text-danger" id="productDescriptionError"></div>
-            </div>
-            <div class="mb-3">
-                <label for="productStock" class="form-label">Stock</label>
-                <input type="number" class="form-control" id="productStock" required>
-                <div class="text-danger" id="productStockError"></div>
-            </div>
-            <div class="mb-3">
+  </head>
+  <body class="d-flex flex-column h-100">
+    <header class="d-flex justify-content-center py-3">
+      <ul class="nav nav-pills">
+        <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+        <li class="nav-item"><a href="create.html" class="nav-link active" aria-current="page">Add Products</a></li>
+        <li class="nav-item"><a href="list.html" class="nav-link">Show Products</a></li>
+        <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
+        <li class="nav-item"><a href="about.html" class="nav-link">About</a></li>
+      </ul>
+    </header>
+    <main class="flex-shrink-0">
+        <div class="container">
+          <h1>Add Product</h1>
+          <hr>
+          <form id="product-form" method="POST">
+            <div class="mb-2">
+              <div class="mb-3">
+                <label for="name" class="form-label">Product Name</label>
+                <input type="text" class="form-control" id="name" name="name">
+                <p class="text-danger d-none">currently hidden</p>
+              </div>            
+              <div class="mb-3">
+                <label for="stock" class="form-label">Stock</label>
+                <input type="text" class="form-control" id="stock" name="stock">
+                <p class="text-danger d-none"></p>
+              </div>
+              <div class="mb-3">
+                <label for="desc" class="form-label">Description</label>
+                <input type="text" class="form-control" id="desc" name="desc">
+                <p class="text-danger d-none"></p>
+              </div>  
+              <div class="mb-3">
                 <label for="productPrice" class="form-label">Price ($)</label>
                 <input 
                     type="number" 
@@ -57,12 +52,15 @@
                     placeholder="0.00"
                     required
                 >
-                <div class="text-danger" id="productPriceError"></div>
+               </div>
+              <div>
+                <button type="submit" class="btn btn-primary">Save Product</button>
+              </div>
             </div>
-            <button type="submit" class="btn btn-primary" id="submitButton">Create Product</button>
-        </form>
-    </div>
-
+          </form>  
+        </div>
+      </main>
+    
     <!-- Footer -->
     <footer class="text-center py-3 mt-4 bg-light">
         <p>&copy; <span id="year"></span> Abhinav, Inc</p>
@@ -73,5 +71,5 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="app/products/create.js"></script>
-</body>
+  </body>
 </html>
