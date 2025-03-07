@@ -1,4 +1,4 @@
-import animalService from "../animal.service.mock.js";
+import animalService from "../animal.service.js";
 
 function list(recordPage) {
     const container = document.createElement('div');
@@ -81,41 +81,25 @@ function list(recordPage) {
         }
     }
     function createContent() {
-        const params = new URLSearchParams(recordPage);
-        const url = new URL(`/api/animals?${params.toString()}`, 'https://inft2202.opentech.durhamcollege.org');
-        const req = new Request(url, {
-            headers: {
-                'User': 'studentId',
-                'apiKey': '7bfa2060-9d12-42fe-8549-cf9205d269a0'
-            },
-            method: 'GET',
-        });
-//do fetch here
-        fetch(req)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then((ret) => {
-            let { records, pagination } = ret;
-            divWaiting.classList.add('d-none');
-            let header = document.createElement('div');
-            header.classList.add('d-flex', 'justify-content-between');
-            let h1 = document.createElement('h1');
-            h1.innerHTML = 'Animal List';
-            header.append(h1);
-            header.append(drawPagination(pagination));
-            container.append(header);
-            container.append(drawAnimalTable(records));
-        })
-        .catch(err => {
-            divWaiting.classList.add('d-none');
-            divMessage.innerHTML = err;
-            divMessage.classList.remove('d-none');
-            divMessage.classList.add('alert-danger');
-        });
+        animalService.getAnimalPage(recordPage)
+            .then((ret) => {
+                let { records, pagination } = ret;
+                divWaiting.classList.add('d-none');
+                let header = document.createElement('div');
+                header.classList.add('d-flex', 'justify-content-between');
+                let h1 = document.createElement('h1');
+                h1.innerHTML = 'Animal List';
+                header.append(h1);
+                header.append(drawPagination(pagination));
+                container.append(header);
+                container.append(drawAnimalTable(records));
+            })
+            .catch(err => {
+                divWaiting.classList.add('d-none');
+                divMessage.innerHTML = err;
+                divMessage.classList.remove('d-none');
+                divMessage.classList.add('alert-danger');
+            });
         return container;
     }
     return {

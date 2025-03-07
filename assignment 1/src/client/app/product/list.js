@@ -1,6 +1,6 @@
-// src/client/app/products/list.js
 import ProductService from './product.mock.service.js';
 import Product from './product.js';
+
 
 class ProductList {
     constructor() {

@@ -1,4 +1,3 @@
-// src/client/app/products/create.js
 import ProductService from './product.mock.service.js';
 import Product from './product.js';
 
