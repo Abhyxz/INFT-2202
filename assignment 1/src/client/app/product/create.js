@@ -1,4 +1,5 @@
-import ProductService from './product.mock.service.js';
+// src/client/app/products/create.js
+import ProductService from './product.mock.service.js'; // Changed to mock service
 import Product from './product.js';
 
 const params = new URLSearchParams(window.location.search);
@@ -49,55 +50,38 @@ function validateForm(name, description, stock, price) {
     } else if (price < 0) {
         document.getElementById('productPriceError').textContent = 'Price must be a positive number.';
         isValid = false;
-    } else if (!(/^\d+(\.\d{1,2})?$/).test(price.toString())) {
-        document.getElementById('productPriceError').textContent = 'Price must have up to 2 decimal places.';
-        isValid = false;
     }
 
     return isValid;
 }
-
-// Add input event listener for price field to enforce decimal format
-document.getElementById('productPrice').addEventListener('input', function(e) {
-    let value = e.target.value;
-    
-    // Remove any characters that aren't numbers or decimal point
-    value = value.replace(/[^\d.]/g, '');
-    
-    // Ensure only one decimal point
-    const parts = value.split('.');
-    if (parts.length > 2) {
-        value = parts[0] + '.' + parts.slice(1).join('');
-    }
-    
-    // Limit to 2 decimal places
-    if (parts.length > 1) {
-        value = parts[0] + '.' + parts[1].slice(0, 2);
-    }
-    
-    e.target.value = value;
-});
 
 // Function to auto-fill the form when editing
 function autoFillForm(product) {
     document.getElementById('productName').value = product.name;
     document.getElementById('productDescription').value = product.description;
     document.getElementById('productStock').value = product.stock;
-    document.getElementById('productPrice').value = product.price.toFixed(2); // Ensure price shows 2 decimal places
+    document.getElementById('productPrice').value = product.price.toFixed(2);
     document.querySelector('h1').textContent = 'Edit Product';
     document.querySelector('button[type="submit"]').textContent = 'Save Changes';
 }
 
-// Auto-fill the form if editing
+// Load product data if editing
 if (editId) {
-    currentProduct = ProductService.getProducts().find(p => p.id === editId);
-    if (currentProduct) {
-        autoFillForm(currentProduct);
-    }
+    ProductService.getProducts()
+        .then(products => {
+            currentProduct = products.find(p => p.id === editId);
+            if (currentProduct) {
+                autoFillForm(currentProduct);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading product:', error);
+            alert('Failed to load product data. Please try again.');
+        });
 }
 
 // Handle form submission
-document.getElementById('create-product-form').addEventListener('submit', function(event) {
+document.getElementById('create-product-form').addEventListener('submit', async function (event) {
     event.preventDefault();
 
     const name = document.getElementById('productName').value;
@@ -105,22 +89,24 @@ document.getElementById('create-product-form').addEventListener('submit', functi
     const stock = parseInt(document.getElementById('productStock').value);
     const price = parseFloat(document.getElementById('productPrice').value);
 
-    // Validate the form
     if (!validateForm(name, description, stock, price)) {
         return;
     }
 
-    const newProduct = new Product(name, description, stock, price);
+    const product = new Product(name, description, stock, price);
 
-    if (editId) {
-        // Preserve the original ID when updating
-        newProduct.id = editId;
-        ProductService.updateProduct(editId, newProduct);
-        alert('Product updated successfully!');
-    } else {
-        ProductService.addProduct(newProduct);
-        alert('Product created successfully!');
+    try {
+        if (editId) {
+            product.id = editId;
+            await ProductService.updateProduct(editId, product);
+            alert('Product updated successfully!');
+        } else {
+            await ProductService.addProduct(product);
+            alert('Product created successfully!');
+        }
+        window.location.href = 'list.html';
+    } catch (error) {
+        console.error('Error saving product:', error);
+        alert('Failed to save product. Please try again.');
     }
-
-    window.location.href = 'list.html';
 });
