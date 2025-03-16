@@ -1,21 +1,15 @@
 class ProductService {
     constructor() {
-        this.host = "https://inft2202-server.onrender.com/api/products";
+        this.host = 'https://inft2202.opentech.durhamcollege.org/api/products?page=1&perPage=5';
     }
 
     async getProducts(page = 1, perPage = 5) {
         try {
-            console.log('Fetching from URL:', this.host); 
-            const response = await fetch(this.host);
-            console.log('Raw response:', response); 
-
+            const response = await fetch(`${this.host}?page=${page}&perPage=${perPage}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-
             const data = await response.json();
-            console.log('Raw data:', data); 
-
             return {
                 products: data.records || [],
                 total: data.pagination?.count || 0,
@@ -32,22 +26,14 @@ class ProductService {
     async updateProduct(id, product) {
         try {
             const url = `${this.host}/${id}`;
-            const request = new Request(url, {
+            const response = await fetch(url, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
-                mode: 'cors',
-                body: JSON.stringify({
-                    name: product.name,
-                    description: product.description,
-                    price: parseFloat(product.price),
-                    stock: parseInt(product.stock)
-                })
+                body: JSON.stringify(product)
             });
-
-            const response = await fetch(request);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -61,16 +47,13 @@ class ProductService {
     async deleteProduct(id) {
         try {
             const url = `${this.host}/${id}`;
-            const request = new Request(url, {
+            const response = await fetch(url, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
-                },
-                mode: 'cors'
+                }
             });
-
-            const response = await fetch(request);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
