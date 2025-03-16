@@ -1,6 +1,6 @@
 class ProductService {
     constructor() {
-        this.host = 'https://inft2202.opentech.durhamcollege.org/api/products?page=1&perPage=5';
+        this.host = 'https://inft2202-server.onrender.com/api/products';
     }
 
     async getProducts(page = 1, perPage = 5) {
