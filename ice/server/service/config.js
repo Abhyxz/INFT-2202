@@ -1,4 +1,4 @@
-import bodyParser from 'body-parser';
+import express from 'express';
 import animalRouter from '../routes/animal.js'
 import { loggingMiddleware } from '../middleWare/logging.js';
 import {errorHandler} from '../middleWare/errorHandler.js';
