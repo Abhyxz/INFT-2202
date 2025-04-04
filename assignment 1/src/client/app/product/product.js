@@ -1,4 +1,4 @@
-// src/client/app/products/product.js
+// client/app/products/product.js
 function Product(name, description, stock, price, owner = null) {
     this.id = Math.random().toString(36).substr(2, 9); // Generate a unique ID
     this.name = name;
