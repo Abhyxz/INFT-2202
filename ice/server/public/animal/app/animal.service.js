@@ -6,7 +6,7 @@ export default new AnimalService({
     //host: 'https://inft2202-server.onrender.com/',
     //host: 'http://localhost:3000',
     host: window.location.origin,
-    user: '100925038'
+    user: 'your student id'
 });
 
 /*

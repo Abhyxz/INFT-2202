@@ -5,7 +5,7 @@
 export default new AnimalService({
     host: 'https://inft2202-server.onrender.com/',
     //host: 'http://localhost:3091',
-    user: '0000'
+    user: '100925210'
 });
 
 /*
@@ -26,15 +26,16 @@ AnimalService.prototype.findAnimal = async function(name) {
     const url = new URL(`/api/animals/${name}`, this.host);
     const req = new Request(url, {
         headers: this.headers,
-        method: 'GET',
+        method: 'GET'
     });
-    try {
-        const res = await fetch(req);
-        return res.json();
-    } catch (err) {
-        return false;
+    
+    const res = await fetch(req);
+    if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || 'Failed to find animal');
     }
-}
+    return res.json();
+};
 /*
  *
  */
@@ -76,21 +77,24 @@ AnimalService.prototype.saveAnimal = async function(animals)
 /*
  *
  */
-AnimalService.prototype.updateAnimal = async function(animal) 
-{
+AnimalService.prototype.updateAnimal = async function(animal) {
     const url = new URL(`/api/animals`, this.host);
     const req = new Request(url, {
-        headers: this.headers,
+        headers: {
+            ...this.headers,
+            'Content-Type': 'application/json'
+        },
         method: 'PUT',
         body: JSON.stringify(animal)
     });
-    try {
-        const res = await fetch(req);
-        return res.json();
-    } catch (err) {
-        return false;
+    
+    const res = await fetch(req);
+    if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || 'Failed to update animal');
     }
-}
+    return res.json();
+};
 
 /*
  *

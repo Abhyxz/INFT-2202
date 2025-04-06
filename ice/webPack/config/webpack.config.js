@@ -1,55 +1,52 @@
-import HtmlWebpackPlugin from 'html-webpack-plugin';
-import CopyWebpackPlugin from 'copy-webpack-plugin';
-import path from 'path';
-import { fileURLToPath } from 'url';
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-export default {
+module.exports = {
   devtool: 'source-map',
   entry: './src/index.js',
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, '../dist'),
+    clean: true,
+    publicPath: '/INFT2202/',
+  },
+  module: {
+    rules: [
+      // CSS loader
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
+      },
+      // Image loader
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: 'asset/resource',
+        generator: {
+          filename: 'images/[name][ext]'
+        }
+      },
+      // JavaScript loader
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader'
+        }
+      }
+    ]
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: './public/index.html',
-      inject: 'body', // Injects the script tag at the end of the body
-    }),
-    new CopyWebpackPlugin({
-      patterns: [
-        { from: './public/img', to: 'img' }//it will copy to a temp folder under dev mode
-      ]
+      inject: 'body'
     })
-  ],  
+  ],
   devServer: {
+    historyApiFallback: true,
+    hot: true,
+    port: 8080,
     static: {
-      directory: path.join(__dirname, 'public'),
-    },
-    compress: true,
-    port: 9000,
-    open: true,
-  },
-  module: {
-    rules: [
-      {
-        test: /\.(png|jpe?g|gif|svg)$/i,
-        loader: 'file-loader',
-        options: {
-          esModule: false,
-          name: '[name].[contenthash].[ext]',
-          outputPath: 'img',
-        },
-      },      
-      {
-        test: /\.ejs$/,
-        loader: 'ejs-loader',
-        options: {
-          esModule: false,
-        },
-      }
-    ]
-  },
+      directory: path.join(__dirname, '../public'),
+    }
+  }
 };

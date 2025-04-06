@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <title>INFT 2202</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="./css/style.css">
+    <script  src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script  src="./app/animals/create.js" type="module"></script>
+</head>
+<body class="d-flex flex-column">
+    <div class="container">
+        <div class="row">
+            <div class="col-7 offset-3">
+                <div id="generalError" class="alert alert-danger d-none"></div>
+                <form id="animalForm" class="needs-validation" novalidate>
+                    <h1 class="text-center">Add Your Animal</h1>
+                    <div class="form-group mb-3">
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                        <div class="text-danger d-none"></div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="breed">Breed</label>
+                        <input type="text" class="form-control" id="breed" name="breed" required>
+                        <div class="invalid-feedback">Please provide a breed.</div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="legs">Number of Legs</label>
+                        <input type="number" class="form-control" id="legs" name="legs" required min="0">
+                        <div class="invalid-feedback">Please provide a valid number of legs.</div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="eyes">Number of Eyes</label>
+                        <input type="number" class="form-control" id="eyes" name="eyes" required min="0">
+                        <div class="invalid-feedback">Please provide a valid number of eyes.</div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="sound">Sound</label>
+                        <input type="text" class="form-control" id="sound" name="sound" required>
+                        <div class="invalid-feedback">Please provide a sound.</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Animal</button>
+                </form>
+                <div id="errorMessage" class="alert alert-danger mt-3 d-none"></div>
+                <div id="successMessage" class="alert alert-success mt-3 d-none"></div>
+                <div id="done" class="d-none">
+                   <a href="list.html"></a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

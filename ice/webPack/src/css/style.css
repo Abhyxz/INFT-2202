@@ -1,0 +1,13 @@
+.footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #f8f9fa;
+    border-top: 1px solid #e7e7e7;
+}
+
+.footer .text-muted {
+    font-size: 0.9rem;
+}
+
+

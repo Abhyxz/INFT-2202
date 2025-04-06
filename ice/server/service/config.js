@@ -1,4 +1,4 @@
-import express from 'express';
+import bodyParser from 'body-parser';
 import animalRouter from '../routes/animal.js'
 import { loggingMiddleware } from '../middleWare/logging.js';
 import {errorHandler} from '../middleWare/errorHandler.js';
@@ -7,8 +7,8 @@ import { query,validationResult } from 'express-validator';
 function config(app) {
     
     // Parse JSON bodies and URL-encoded bodies
-    app.use(express.json());
-    app.use(express.urlencoded({ extended: true }));
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({ extended: true }));
     
     app.use(loggingMiddleware);
 

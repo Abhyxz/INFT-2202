@@ -11,45 +11,45 @@ async function animal(name) {
         const mb3Name = document.createElement('div');
         mb3Name.classList.add('mb-3');
         let editableInput = `<input type="text" class="form-control" id="name" name="name">`;
-        let readonlyInput = `<input type="text" class="form-control" id="name" name="name" value="${animal!=null?animal.name:""}" readonly>`;
+        let readonlyInput = `<input type="text" class="form-control" id="name" name="name" value="${animal != null ? animal.name : ""}" readonly>`;
         mb3Name.innerHTML = '<label for="name" class="form-label">Animal Name</label>' +
-            (animal!=null ? readonlyInput : editableInput) +
+            (animal != null ? readonlyInput : editableInput) +
             '<p class="text-danger d-none"></p>';
         container.append(mb3Name);
 
         const mb3Breed = document.createElement('div');
         mb3Breed.classList.add('mb-3');
         mb3Breed.innerHTML = '<label for="breed" class="form-label">Animal Breed</label>' +
-            `<input type="text" class="form-control" id="breed" name="breed" value="${animal!=null?animal.breed:""}">` +
+            `<input type="text" class="form-control" id="breed" name="breed" value="${animal != null ? animal.breed : ""}">` +
             '<p class="text-danger d-none"></p>';
         container.append(mb3Breed);
-        
+
         const mb3Leg = document.createElement('div');
         mb3Leg.classList.add('mb-3');
         mb3Leg.innerHTML = '<label for="legs" class="form-label">Number of Legs</label>' +
             '<input type="text" class="form-control" id="legs" name="legs">' +
             '<p class="text-danger d-none"></p>';
         container.append(mb3Leg);
-        
+
         const mb3Eye = document.createElement('div');
         mb3Eye.classList.add('mb-3');
         mb3Eye.innerHTML = '<label for="eyes" class="form-label">Number of Eyes</label>' +
             '<input type="text" class="form-control" id="eyes" name="eyes">' +
             '<p class="text-danger d-none"></p>';
         container.append(mb3Eye);
-        
+
         const mb3Sound = document.createElement('div');
         mb3Sound.classList.add('mb-3');
         mb3Sound.innerHTML = '<label for="sound" class="form-label">Sound this animal makes</label>' +
             '<input type="text" class="form-control" id="sound" name="sound">' +
             '<p class="text-danger d-none"></p>';
-        container.append(mb3Sound);        
+        container.append(mb3Sound);
 
         const submitBtn = document.createElement('div');
         submitBtn.innerHTML = '<button type="submit" class="btn btn-primary">' +
             'Save Animal <i class="fa-solid fa-check"></i>' +
             '</button>';
-        container.append(submitBtn);        
+        container.append(submitBtn);
         ///
         form.append(container);
         return form;
@@ -98,47 +98,46 @@ async function animal(name) {
         const sound = form.sound.value;
         // return if the form is valid or not
         return valid
-    }    
+    }
     // create a handler to deal with the submit event
     async function submit(action) {
-        // validate the form
         const valid = validate();
-        // do stuff if the form is valid
         if (valid) {
-            console.log('were good');
-
             const formData = new FormData(form);
             const animalObject = {};
             formData.forEach((value, key) => {
                 if (key === 'eyes' || key === 'legs') {
                     animalObject[key] = Number(value);
-                }
-                else {
-                    animalObject[key] = value;
+                } else {
+                    animalObject[key] = value.trim();
                 }
             });
 
-            const eleNameError = form.name.nextElementSibling
+            const eleNameError = form.name.nextElementSibling;
             try {
-                if(action=="new"){
-                    await animalService.saveAnimal([animalObject]);
+                if (action == "new") {
+                    await animalService.saveAnimal(animalObject);
+                    // Add a small delay before redirect
+                    setTimeout(() => {
+                        window.location = './list.html';
+                    }, 500);
                 } else {
-                    await animalService.updateAnimal(animalObject)
-                } 
-                eleNameError.classList.add('d-none');
-                form.reset();
-                window.location = './list.html';
+                    await animalService.updateAnimal(animalObject);
+                    setTimeout(() => {
+                        window.location = './list.html';
+                    }, 500);
+                }
             } catch (error) {
-                console.log(error);
+                console.error(error);
                 eleNameError.classList.remove('d-none');
-                eleNameError.textContent = "This animal already exists!";
+                eleNameError.textContent = error.message || "Failed to save animal";
+                return; // Don't redirect if there's an error
             }
-            // do nothing if it's not
         } else {
-            console.log('were not good');
+            console.log('Form validation failed');
         }
     }
-    
+
     if (!name) {
         // assign a handler to the submit event
         form.addEventListener('submit', function (event) {
@@ -147,11 +146,11 @@ async function animal(name) {
             submit("new");
         });
     }
-    else{
+    else {
         description = 'Update Animal';
-        try{
+        try {
             let ret = await animalService.findAnimal(name);
-            if(ret.length == 0){
+            if (ret.length == 0) {
                 throw 'No record';
             }
             animal = ret[0];
@@ -161,8 +160,8 @@ async function animal(name) {
                 submit("update");
             });
         }
-        catch(err){
-//show err on page
+        catch (err) {
+            //show err on page
             description = err;
         }
     }

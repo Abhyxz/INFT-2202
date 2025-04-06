@@ -1,131 +1,117 @@
 
-import animalService from "../animal.service.js";
+import animalService from '../services/animalService.js';
 
-function list(app) {
-    const {recordPage, animalBuilder} = app;
-    const container = document.createElement('div');
-    container.classList.add('container');
-    const divWaiting = document.createElement('div');
-    divWaiting.classList.add('text-center');
-    divWaiting.innerHTML = '<i class="fa fa-5x fa-spinner fa-spin"></i>';
-    container.append(divWaiting);
+function listBuilder(app) {
+    const element = document.createElement('div');
+    const { recordPage } = app;
 
-    const divMessage = document.createElement('div');
-    divMessage.classList.add('alert', 'text-center', 'd-none');
-    container.append(divMessage);
+    const render = async () => {
+        try {
+            const { records, pagination } = await animalService.getAnimalPage(recordPage);
+            
+            element.innerHTML = `
+                <h2>Animal List</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Breed</th>
+                                <th>Legs</th>
+                                <th>Eyes</th>
+                                <th>Sound</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${records
+                                .filter(animal => animal && animal.name) // Filter out undefined or invalid entries
+                                .map(animal => `
+                                    <tr>
+                                        <td>${animal.name || ''}</td>
+                                        <td>${animal.breed || ''}</td>
+                                        <td>${animal.legs || ''}</td>
+                                        <td>${animal.eyes || ''}</td>
+                                        <td>${animal.sound || ''}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary edit-btn" 
+                                                    data-name="${animal.name}">
+                                                <i class="fa fa-edit"></i> Edit
+                                            </button>
+                                            <button class="btn btn-sm btn-danger delete-btn" 
+                                                    data-name="${animal.name}">
+                                                <i class="fa fa-trash"></i> Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <button class="btn btn-secondary" ${pagination.page <= 1 ? 'disabled' : ''} id="prevPage">Previous</button>
+                    <span class="mx-3">Page ${pagination.page} of ${pagination.pages}</span>
+                    <button class="btn btn-secondary" ${pagination.page >= pagination.pages ? 'disabled' : ''} id="nextPage">Next</button>
+                </div>
+            `;
 
-    function onSelectPage(pageInfo){
-        return event => {
-            createContent(pageInfo);
-        }
-    }
-    function drawPagination({ page = 1, perPage = 5, pages = 10 }) {
-        function addPage(number, text, style) {
-            const li = document.createElement('li');
-            li.classList.add('page-item', style);
-            const elePageBtn = document.createElement('button');
-            elePageBtn.classList.add('page-link');
-            elePageBtn.innerText = text;
-            let pageInfo = {page:number, perPage};
-            elePageBtn.addEventListener('click',onSelectPage(pageInfo));
-            li.append(elePageBtn);
-            return li;
-        }
-        const pagination = document.createElement('div');
-        if (pages > 1) {
-            pagination.classList.remove('d-none');
-        }
-        const ul = document.createElement("ul");
-        ul.classList.add('pagination')
-        ul.append(addPage(page - 1, 'Previous', (page == 1) ? 'disabled' : null))
-        for (let i = 1; i <= pages; i++) {
-            ul.append(addPage(i, i, (i == page) ? 'active' : null));
-        }
-        ul.append(addPage(page + 1, 'Next', (page == pages) ? 'disabled' : null))
+            // Add event listeners for delete buttons
+            element.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const name = e.target.closest('[data-name]')?.dataset.name;
+                    if (!name) {
+                        console.error('Cannot delete: animal name is missing');
+                        return;
+                    }
 
-        pagination.append(ul);
-        return pagination;
-    }
-    function drawAnimalTable(animals) {
-        const eleTable = document.createElement('table');
-        eleTable.classList.add('table', 'table-striped');
-        // Create a <thead> element
-        const thead = eleTable.createTHead();
-        // Create a row in the <thead>
-        const row = thead.insertRow();
-        // Create and append header cells
-        const headers = ['Name', 'Breed', 'Legs', 'Eyes', 'Sound'];
-        headers.forEach(headerText => {
-            const th = document.createElement('th');
-            th.textContent = headerText;
-            row.appendChild(th);
-        });
-        for (let animal of animals) {
-            const row = eleTable.insertRow();
-            // create some rows for each animal field    
-            row.insertCell().textContent = animal.name;
-            row.insertCell().textContent = animal.breed;
-            row.insertCell().textContent = animal.legs;
-            row.insertCell().textContent = animal.eyes;
-            row.insertCell().textContent = animal.sound;
-            // create a cell to hold the buttons
-            const eleBtnCell = row.insertCell();
-            eleBtnCell.classList.add();
-            // create a delete button
-            const eleBtnDelete = document.createElement('button');
-            eleBtnDelete.classList.add('btn', 'btn-danger', 'mx-1');
-            eleBtnDelete.innerHTML = `<i class="fa fa-trash"></i>`;
-            eleBtnDelete.addEventListener('click', onDeleteButtonClick(animal));
-            // add the delete button to the button cell
-            eleBtnCell.append(eleBtnDelete);
-            // create an edit button
-            const eleBtnEdit = document.createElement('button');
-            eleBtnEdit.classList.add('btn', 'btn-primary', 'mx-1');
-            eleBtnEdit.innerHTML = `<i class="fa fa-user"></i>`;
-            eleBtnEdit.addEventListener('click', onEditButtonClick(animal));
-            // add the edit button to the button cell
-            eleBtnCell.append(eleBtnEdit);
-        }
-        return eleTable;
-    }
-    function onDeleteButtonClick(animal) {
-        return event => {
-            animalService.deleteAnimal(animal.name).then(() => { window.location.reload(); });
-        }
-    }
-    function onEditButtonClick(animal) {
-        return event => {
-            app.name = animal.name;
-            animalBuilder(app);
-        }
-    }    
-    function createContent(pageInfo) {
-        divWaiting.classList.remove('d-none');
-        animalService.getAnimalPage(pageInfo)
-            .then((ret) => {
-                container.textContent = '';
-                let { records, pagination } = ret;
-                divWaiting.classList.add('d-none');
-                let header = document.createElement('div');
-                header.classList.add('d-flex', 'justify-content-between');
-                let h1 = document.createElement('h1');
-                h1.innerHTML = 'Animal List';
-                header.append(h1);
-                header.append(drawPagination(pagination));
-                container.append(header);
-                container.append(drawAnimalTable(records));
-            })
-            .catch(err => {
-                divWaiting.classList.add('d-none');
-                divMessage.innerHTML = err;
-                divMessage.classList.remove('d-none');
-                divMessage.classList.add('alert-danger');
+                    if (confirm(`Are you sure you want to delete ${name}?`)) {
+                        try {
+                            await animalService.deleteAnimal(name);
+                            render(); // Refresh the list
+                        } catch (error) {
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'alert alert-danger mt-3';
+                            errorDiv.textContent = error.message;
+                            element.insertBefore(errorDiv, element.firstChild);
+                            
+                            setTimeout(() => errorDiv.remove(), 3000);
+                        }
+                    }
+                });
             });
-        return container;
-    }
+
+            // Add event listeners for edit buttons
+            element.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const name = e.target.closest('[data-name]').dataset.name;
+                    // Use history.pushState for client-side navigation
+                    window.history.pushState({}, '', `/animal?name=${name}`);
+                    // Trigger the router
+                    window.dispatchEvent(new PopStateEvent('popstate'));
+                });
+            });
+
+            element.querySelector('#prevPage')?.addEventListener('click', () => {
+                recordPage.page--;
+                render();
+            });
+
+            element.querySelector('#nextPage')?.addEventListener('click', () => {
+                recordPage.page++;
+                render();
+            });
+
+        } catch (error) {
+            element.innerHTML = `<div class="alert alert-danger">Error loading animals: ${error.message}</div>`;
+        }
+    };
+
+    render();
+
     return {
-        element: createContent(recordPage)
-    }
+        element
+    };
 }
 
-export default list;
+export default listBuilder;
