@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   mode: 'development',
@@ -13,36 +14,25 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.css$/i,
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
+      },
+      {
+        test: /\.ejs$/,
         use: [
           {
-            loader: 'style-loader'
+            loader: 'html-loader'
           },
           {
-            loader: 'css-loader',
-            options: {
-              sourceMap: true
-            }
+            loader: 'template-ejs-loader'
           }
         ]
       },
       {
-        test: /\.(png|svg|jpg|jpeg|gif)$/i,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: '[name].[ext]',
-              outputPath: 'images/'
-            }
-          }
-        ]
-      },
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader'
+        test: /\.(png|jpe?g|gif|svg)$/i,
+        type: 'asset/resource',
+        generator: {
+          filename: 'images/[name][ext]'
         }
       }
     ]
@@ -50,14 +40,20 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: './public/index.html'
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        { 
+          from: 'src/app/img',
+          to: 'images'
+        }
+      ]
     })
   ],
-  devServer: {
-    static: {
-      directory: path.join(__dirname, 'public'),
-    },
-    compress: true,
-    port: 8080,
-    hot: true
+  resolve: {
+    extensions: ['.js', '.ejs']
   }
 };
+
+
+
