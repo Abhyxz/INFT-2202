@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Animal</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div id="errorContainer"></div>
+        <div id="animalForm">
+            <!-- Form will be dynamically inserted here -->
+        </div>
+    </div>
+    <script>
+        // Get the animal name from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const animalName = urlParams.get('name');
+        
+        // Initialize the form based on whether we're editing or creating
+        if (animalName) {
+            document.title = 'Edit Animal';
+        } else {
+            document.title = 'New Animal';
+        }
+    </script>
+    <script src="app/animal.js" type="module"></script>
+</body>
+</html>
