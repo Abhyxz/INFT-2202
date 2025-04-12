@@ -1,69 +1,112 @@
-/*
-    Name: Akshay Mathew
-    filename: app.js
-    Course: INFT 2202
-    Date: january 10
-    Description: This is my general application script.  Functions that are required on every page should live here.
-*/
-// tell us what page we're on
-console.log('we are on the add page');
-
-// assign a handler to the submit event
-document.getElementById('animal-form')
-    .addEventListener('submit', submitAnimalForm);
-
-// create a handler to deal with the submit event
-async function submitAnimalForm ( event ) {
-    // prevent the default action from happening
-    event.preventDefault();
-    // get a reference to the form (from the event)
-    const animalForm = event.target;  
-    // validate the form
-    const valid = validateAnimalForm(animalForm);
-    // do stuff if the form is valid
-    if (valid) {
-        console.log('were good');
-        
-        const formData = new FormData(animalForm);
-        const animalObject = {};
-        formData.forEach((value, key) => {
-            animalObject[key] = value;
-        });
-
-        const eleNameError = animalForm.name.nextElementSibling
-        try {
-            await animalService.saveAnimal(animalObject)
-            eleNameError.classList.add('d-none');
-            animalForm.reset();
-            window.location = './list.html';
-        } catch (error) {
-            console.log(error);
-            eleNameError.classList.remove('d-none');
-            eleNameError.textContent = "This animal already exists!";
-        }        
-    // do nothing if it's not
-    } else {
-        console.log('were not good');
+// Animal service mock using localStorage
+const animalService = {
+    async saveAnimal(animal) {
+      let existing = JSON.parse(localStorage.getItem("animals") || "[]");
+      if (existing.find(a => a.name === animal.name)) {
+        throw new Error("Animal exists");
+      }
+      existing.push(animal);
+      localStorage.setItem("animals", JSON.stringify(existing));
+    },
+    getAllAnimals() {
+      return JSON.parse(localStorage.getItem("animals") || "[]");
     }
-}
-
-// validate the animal form
-function validateAnimalForm ( form ) {
-    console.log('validating')
+  };
+  
+  // Routes definition
+  const routes = {
+    '/': `
+      <h1>Welcome Home</h1>
+      <p>This is the homepage.</p>
+    `,
+    '/animal': `
+      <h1>Add Animal</h1>
+      <form id="animal-form">
+        <div class="form-group">
+          <label for="name">Animal Name</label>
+          <input type="text" class="form-control" name="name" required>
+          <div class="text-danger d-none"></div>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+    `,
+    '/list': `
+      <h1>Animal List</h1>
+      <ul id="animal-list" class="list-group mt-3"></ul>
+    `,
+    '/contact': `
+      <h1>Contact Us</h1>
+      <form id="contact-form">
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" class="form-control" id="email" required>
+        </div>
+        <button class="btn btn-success mt-2">Send</button>
+      </form>
+    `,
+    '/about': `
+      <h1>About Us</h1>
+      <p>This app was created by Abhinav for INFT 2202 Assignment 3.</p>
+    `
+  };
+  
+  // SPA route loader
+  function loadRoute() {
+    const path = location.hash.replace('#', '') || '/';
+    document.getElementById('spa-content').innerHTML = routes[path] || `<h1>404 - Page not found</h1>`;
+  
+    if (path === '/animal') {
+      document.getElementById('animal-form').addEventListener('submit', submitAnimalForm);
+    }
+  
+    if (path === '/list') {
+      const animals = animalService.getAllAnimals();
+      const listEl = document.getElementById('animal-list');
+      listEl.innerHTML = animals.map(a => `<li class="list-group-item">${a.name}</li>`).join('');
+    }
+  }
+  
+  // Form validation
+  function validateAnimalForm(form) {
     let valid = true;
-    // test that name is valid
-    const name = form.name.value;
-    const eleNameError = form.name.nextElementSibling
-
-    if (name == "") {
-        eleNameError.classList.remove('d-none');
-        eleNameError.textContent = "You must name this animal!";
-        valid = false;
+    const name = form.name.value.trim();
+    const errorEl = form.name.nextElementSibling;
+  
+    if (!name) {
+      errorEl.classList.remove('d-none');
+      errorEl.textContent = "You must name this animal!";
+      valid = false;
     } else {
-        eleNameError.classList.add('d-none');
+      errorEl.classList.add('d-none');
     }
-    // add validation for the remaining fields. 
-
-    // return if the form is valid or not
-    return valid
-}
+    return valid;
+  }
+  
+  // Handle form submit
+  async function submitAnimalForm(event) {
+    event.preventDefault();
+    const form = event.target;
+    if (validateAnimalForm(form)) {
+      const formData = new FormData(form);
+      const animal = {};
+      formData.forEach((val, key) => animal[key] = val);
+  
+      try {
+        await animalService.saveAnimal(animal);
+        form.reset();
+        window.location.hash = '#/list';
+      } catch (err) {
+        const errorEl = form.name.nextElementSibling;
+        errorEl.classList.remove('d-none');
+        errorEl.textContent = "This animal already exists!";
+      }
+    }
+  }
+  
+  // Initial setup
+  window.addEventListener('hashchange', loadRoute);
+  window.addEventListener('DOMContentLoaded', () => {
+    loadRoute();
+    document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+  });
+  
