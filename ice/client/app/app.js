@@ -1,3 +1,5 @@
+// app.js
+
 // Animal service mock using localStorage
 const animalService = {
     async saveAnimal(animal) {
@@ -53,7 +55,8 @@ const animalService = {
   // SPA route loader
   function loadRoute() {
     const path = location.hash.replace('#', '') || '/';
-    document.getElementById('spa-content').innerHTML = routes[path] || `<h1>404 - Page not found</h1>`;
+    const main = document.querySelector('main');
+    main.innerHTML = `<div id="spa-content">${routes[path] || '<h1>404 - Page not found</h1>'}</div>`;
   
     if (path === '/animal') {
       document.getElementById('animal-form').addEventListener('submit', submitAnimalForm);
